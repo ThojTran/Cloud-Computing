@@ -1,0 +1,79 @@
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  flex-direction: column;
+}
+
+
+.app-container {
+  
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+.app-header {
+  width: 100%;
+  /*background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);*/
+  background: none ;
+  color: #fff;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.brand {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.main-nav .nav-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.main-nav .nav-link:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.main-nav .nav-logout {
+  background: #fff;
+  color: #667eea;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.main-nav .nav-logout:hover {
+  background: #f0f0f0;
+}
+
+.app-content {
+  width: 100%;
+  max-width: 500px;
+  padding: 30px;
+}
+
+
+.logged-in .app-content {
+  max-width: 1400px;
+}

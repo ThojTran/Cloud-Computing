@@ -1,0 +1,11 @@
+# ko cho commit 
+
+.env
+
+*.pem
+
+venv/
+
+__pycache__/
+*.pyc
+

@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-JWT-Extended
+Flask-Cors
+pymysql
+python-dotenv
+boto3
+marshmallow
+marshmallow-sqlalchemy
+Werkzeug

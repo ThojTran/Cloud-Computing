@@ -1,0 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+ 
+  background-image: url('C:\Users\ADMIN\python\AWS frontend\Cloud-Computing\src\images\two.jpg'); 
+  background-size: cover;       
+  background-position: center;  
+  background-repeat: no-repeat; 
+}
+
+
+#root {
+  width: 100%;
+}
+
+html, body, #root {
+  height: 100%;
+}
