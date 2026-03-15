@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv() 
 
 from flask import Flask
 from app.config import Config
@@ -20,6 +22,3 @@ def create_app():
     app.register_blueprint(messages_bp, url_prefix="/api/messages")
     
     return app
-
-    
-    
