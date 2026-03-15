@@ -73,12 +73,12 @@ with app.app_context():
                 password="admin12345"
             )
             admin = User.query.filter_by(email=admin_email).first()
-            print(f"✅ Đã tạo tài khoản admin: {admin_email}")
+            print(f"Đã tạo tài khoản admin: {admin_email}")
         except Exception as e:
             print(f"❌ Lỗi tạo admin: {e}")
             sys.exit(1)
     else:
-        print(f"ℹ️ Tài khoản admin đã tồn tại: {admin_email}")
+        print(f"Tài khoản admin đã tồn tại: {admin_email}")
 
     # Thêm 50 khách hàng
     added_count = 0
