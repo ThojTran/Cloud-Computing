@@ -4,25 +4,29 @@ from app.models.message_recip import MessageRecipient
 from app.models.customer import Customer
 from app.services.sms_service import send_sms
 from app.services.email_service import send_email
+from app.models.user import User
 
 
 def send_message(user_id: int, msg_type: str, subject: str,
                  content: str, customer_ids: list) -> dict:
 
+    user = User.query.get(user_id)
+    if user.org_id is None:
+        raise ValueError("Bạn chưa thuộc org nào")
+
     if msg_type not in ("sms", "email"):
         raise ValueError("type phải là 'sms' hoặc 'email'")
-
     if not customer_ids:
         raise ValueError("Phải chọn ít nhất 1 customer")
 
-    # Validate: tất cả customer_ids phải thuộc về user hiện tại
+    # Validate theo org_id ✅
     customers = Customer.query.filter(
         Customer.id.in_(customer_ids),
-        Customer.user_id == user_id,
+        Customer.org_id == user.org_id,
     ).all()
 
     if len(customers) != len(customer_ids):
-        raise ValueError("Một số customer không tồn tại hoặc không thuộc về bạn")
+        raise ValueError("Một số customer không tồn tại hoặc không thuộc org của bạn")
 
     # Bước 1: Tạo Message record
     message = Message(

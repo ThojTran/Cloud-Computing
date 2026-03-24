@@ -5,20 +5,20 @@ from app.services.message_service import send_message, get_message_history
 messages_bp = Blueprint("messages", __name__)
 
 
-# SEND MESSAGE 
+# SEND MESSAGE
 @messages_bp.route("/send", methods=["POST"])
 @jwt_required()
 def send():
     """
     POST /api/messages/send
+    Header: Authorization: Bearer <token>
     Body: {
         "type": "sms" | "email",
-        "subject": "..." (bắt buộc nếu type=email),
+        "subject": "..."  (bắt buộc nếu type=email),
         "content": "...",
         "customer_ids": [1, 2, 3]
     }
-
-    Gửi SMS hoặc Email cho 1 hoặc nhiều customers.
+    Gửi SMS hoặc Email cho 1 hoặc nhiều customers thuộc cùng org.
     """
     user_id = int(get_jwt_identity())
     data = request.get_json()
@@ -48,16 +48,18 @@ def send():
         result = send_message(user_id, msg_type, subject, content, customer_ids)
         return jsonify({"message": "Gửi thành công", "data": result}), 200
     except ValueError as e:
+        # Bao gồm: chưa thuộc org, customer không thuộc org, type không hợp lệ
         return jsonify({"error": str(e)}), 400
 
 
-# MESSAGE HISTORY 
+# MESSAGE HISTORY
 @messages_bp.route("/history", methods=["GET"])
 @jwt_required()
 def history():
     """
     GET /api/messages/history
-    Trả về lịch sử tất cả messages đã gửi.
+    Header: Authorization: Bearer <token>
+    Trả về lịch sử tất cả messages đã gửi bởi user hiện tại.
     """
     user_id = int(get_jwt_identity())
     messages = get_message_history(user_id)

@@ -1,53 +1,49 @@
 from app.extensions import db
 from app.models.customer import Customer
 
+def _get_org_id(user) -> int:
+    """Helper — raise nếu user chưa join org."""
+    if user.org_id is None:
+        raise ValueError("Bạn chưa thuộc org nào")
+    return user.org_id
 
-def get_all_customers(user_id: int) -> list:
-    """Lấy tất cả customers của user hiện tại."""
-    customers = Customer.query.filter_by(user_id=user_id).all()
+def get_all_customers(user) -> list:
+    org_id = _get_org_id(user)
+    customers = Customer.query.filter_by(org_id=org_id).all()
     return [c.to_dict() for c in customers]
 
 
-def get_customer_by_id(user_id: int, customer_id: int) -> dict:
-    """Lấy 1 customer theo ID (chỉ trong phạm vi user đó)."""
-    customer = Customer.query.filter_by(
-        id=customer_id, user_id=user_id
-    ).first()
-
+def get_customer_by_id(user, customer_id: int) -> dict:
+    org_id = _get_org_id(user)
+    customer = Customer.query.filter_by(id=customer_id, org_id=org_id).first()
     if not customer:
         raise ValueError("Không tìm thấy customer")
-
     return customer.to_dict()
 
-
-def create_customer(user_id: int, data: dict) -> dict:
+def create_customer(user, data: dict) -> dict:
     """
     Tạo customer mới.
     data cần có: full_name (bắt buộc), phone, email, address (tuỳ chọn)
     """
+    org_id = _get_org_id(user)
     customer = Customer(
-        user_id=user_id,
+        org_id=org_id,
         full_name=data["full_name"],
         phone=data.get("phone"),
         email=data.get("email"),
         address=data.get("address"),
     )
-
     db.session.add(customer)
     db.session.commit()
-
     return customer.to_dict()
 
 
-def update_customer(user_id: int, customer_id: int, data: dict) -> dict:
+def update_customer(user, customer_id: int, data: dict) -> dict:
     """Cập nhật thông tin customer."""
-    customer = Customer.query.filter_by(
-        id=customer_id, user_id=user_id
-    ).first()
-
+    org_id = _get_org_id(user)
+    customer = Customer.query.filter_by(id=customer_id, org_id=org_id).first()
     if not customer:
         raise ValueError("Không tìm thấy customer")
-
     # Chỉ update những field được gửi lên
     if "full_name" in data:
         customer.full_name = data["full_name"]
@@ -59,15 +55,14 @@ def update_customer(user_id: int, customer_id: int, data: dict) -> dict:
         customer.address = data["address"]
 
     db.session.commit()
-
+    
     return customer.to_dict()
 
 
-def delete_customer(user_id: int, customer_id: int) -> None:
+def delete_customer(user: int, customer_id: int) -> None:
     """Xóa customer."""
-    customer = Customer.query.filter_by(
-        id=customer_id, user_id=user_id
-    ).first()
+    org_id = _get_org_id(user)
+    customer = Customer.query.filter_by(id=customer_id, org_id=org_id).first()
 
     if not customer:
         raise ValueError("Không tìm thấy customer")
@@ -76,10 +71,11 @@ def delete_customer(user_id: int, customer_id: int) -> None:
     db.session.commit()
 
 
-def bulk_delete_customers(user_id: int, customer_ids: list) -> int:
+def bulk_delete_customers(user: int, customer_ids: list) -> int:
+    org_id = _get_org_id(user)
     count = Customer.query.filter(
         Customer.id.in_(customer_ids),
-        Customer.user_id == user_id,
+        Customer.org_id == org_id,
     ).delete(synchronize_session=False)
                                         
     db.session.commit()

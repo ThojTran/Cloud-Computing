@@ -7,16 +7,17 @@ class User(db.Model):
     __tablename__ = "users"
 
     id            = db.Column(db.Integer, primary_key=True)
+    org_id        = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=True)
     email         = db.Column(db.String(100), unique=True, nullable=False)
     username      = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)  # 255 cho bcrypt hash
     created_at    = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    role          = db.Column(db.String(20), default="member")
 
     # Relationships – 1 user có nhiều customers và nhiều messages
-    customers = db.relationship("Customer", backref="owner", lazy=True)
     messages  = db.relationship("Message",  backref="sender", lazy=True)
 
-    # --------------- Password helpers ---------------
+    # Password helpers 
     def set_password(self, raw: str):
         self.password_hash = bcrypt.hashpw(
             raw.encode(), bcrypt.gensalt()
@@ -25,7 +26,7 @@ class User(db.Model):
     def check_password(self, raw: str) -> bool:
         return bcrypt.checkpw(raw.encode(), self.password_hash.encode())
 
-    # --------------- Serialization ---------------
+    #  Serialization
     def to_dict(self):
         return {
             "id": self.id,

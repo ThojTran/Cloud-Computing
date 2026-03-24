@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv() 
 
 from flask import Flask
 from app.config import Config
@@ -15,7 +17,7 @@ def create_app():
     
     # Import và đăng ký blueprints
     from app.routes import auth_bp, customers_bp, messages_bp
-    app.register_blueprint(auth_bp, url_prefix="/api/user")
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(customers_bp, url_prefix="/api/customers")
     app.register_blueprint(messages_bp, url_prefix="/api/messages")
     
