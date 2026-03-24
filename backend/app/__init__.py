@@ -22,6 +22,3 @@ def create_app():
     app.register_blueprint(messages_bp, url_prefix="/api/messages")
     
     return app
-
-    
-    
