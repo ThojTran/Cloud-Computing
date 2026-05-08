@@ -4,12 +4,33 @@
 
 ## 📋 Tính Năng Chính
 
-- ✅ **Quản lý khách hàng** - Thêm, sửa, xóa thông tin khách hàng
-- ✅ **Xác thực người dùng** - Đăng ký, đăng nhập với JWT
-- ✅ **Multi-tenant** - Tách biệt dữ liệu theo Organization
-- ✅ **Gửi SMS** - Tích hợp AWS SNS
-- ✅ **Gửi Email** - Tích hợp AWS SES
-- ✅ **Bulk messaging** - Gửi tin nhắn hàng loạt cho nhiều khách hàng
+- **Quản lý khách hàng** - Thêm, sửa, xóa thông tin khách hàng
+- **Xác thực người dùng** - Đăng ký, đăng nhập với JWT
+- **Multi-tenant** - Tách biệt dữ liệu theo Organization
+- **Gửi SMS** - Tích hợp AWS SNS
+- **Gửi Email** - Tích hợp AWS SES
+- **Bulk messaging** - Gửi tin nhắn hàng loạt cho nhiều khách hàng
+
+---
+
+## 📊 Quy Trình Gửi Tin Nhắn
+
+```
+Frontend (React)
+    ↓
+[POST /api/messages/send]
+    ↓
+Backend (Flask)
+    ├─→ Validate user & organization
+    ├─→ Validate customers belong to org
+    ├─→ Create Message record
+    ├─→ For each customer:
+    │   ├─→ Send SMS via AWS SNS (hoặc Email via SES)
+    │   └─→ Create MessageRecipient record
+    ├─→ Commit to database
+    ↓
+Response (success/failed status cho từng customer)
+```
 
 ---
 
@@ -120,50 +141,12 @@ npm start
 
 ---
 
-## 📡 REST API Endpoints
-
-### **Authentication** (`/api/auth`)
+## REST API Endpoints
 ```
-POST   /register           - Đăng ký user mới
-POST   /login              - Đăng nhập
-POST   /register-org       - Tạo org mới + user
-POST   /join-org           - Join vào org (cần invite code)
-GET    /me                 - Lấy thông tin user hiện tại (cần token)
+Authentication (`/api/auth`)
+Customers (`/api/customers`)
+Messages (`/api/messages`)
 ```
-
-### **Customers** (`/api/customers`)
-```
-GET    /                   - Lấy danh sách khách hàng
-GET    /<id>               - Lấy chi tiết 1 khách hàng
-POST   /                   - Thêm khách hàng mới
-PUT    /<id>               - Cập nhật khách hàng
-DELETE /<id>               - Xóa 1 khách hàng
-POST   /bulk-delete        - Xóa nhiều khách hàng
-```
-
-### **Messages** (`/api/messages`)
-```
-POST   /send               - Gửi SMS/Email hàng loạt
-GET    /history            - Lấy lịch sử gửi tin
-```
-
----
-
-## 🔐 Xác Thực
-
-Tất cả request (trừ `/register`, `/login`, `/register-org`) cần header:
-```
-Authorization: Bearer <JWT_TOKEN>
-```
-
-**Lấy token:**
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com", "password":"password123"}'
-```
-
----
 
 ## 🗄️ Database Schema
 
@@ -221,99 +204,6 @@ curl -X POST http://localhost:5000/api/auth/login \
 
 ---
 
-## 📝 Ví Dụ Sử Dụng
-
-### 1. Đăng ký Organization mới
-```bash
-curl -X POST http://localhost:5000/api/auth/register-org \
-  -H "Content-Type: application/json" \
-  -d '{
-    "org_name": "Công ty ABC",
-    "email": "admin@abc.com",
-    "username": "admin",
-    "password": "password123"
-  }'
-```
-
-### 2. Thêm khách hàng
-```bash
-curl -X POST http://localhost:5000/api/customers \
-  -H "Authorization: Bearer <TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "full_name": "Nguyễn Văn A",
-    "phone": "+84912345678",
-    "email": "a@example.com",
-    "address": "Hà Nội"
-  }'
-```
-
-### 3. Gửi SMS cho multiple customers
-```bash
-curl -X POST http://localhost:5000/api/messages/send \
-  -H "Authorization: Bearer <TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "msg_type": "sms",
-    "subject": null,
-    "content": "Xin chào! Đây là thông báo từ công ty",
-    "customer_ids": [1, 2, 3]
-  }'
-```
-
----
-
-## ⚙️ Biến Môi Trường (.env)
-
-```env
-# Database
-SQLALCHEMY_DATABASE_URI=mysql+pymysql://user:password@localhost:3306/crm_db
-
-# JWT
-JWT_SECRET_KEY=your_secret_key_here
-
-# AWS
-AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
-AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-
-# AWS SES SMTP
-SES_SMTP_HOST=email-smtp.us-east-1.amazonaws.com
-SES_SMTP_PORT=587
-SES_SMTP_USER=AKIAIOSFODNN7EXAMPLE
-SES_SMTP_PASS=BNKjO/Xxxxxxxxxx...
-SENDER_EMAIL=noreply@abc.com
-
-# CORS
-CORS_ORIGINS=http://localhost:3000
-
-# Frontend
-REACT_APP_BACKEND_URL=http://localhost:5000/api
-```
-
----
-
-## 📊 Quy Trình Gửi Tin Nhắn
-
-```
-Frontend (React)
-    ↓
-[POST /api/messages/send]
-    ↓
-Backend (Flask)
-    ├─→ Validate user & organization
-    ├─→ Validate customers belong to org
-    ├─→ Create Message record
-    ├─→ For each customer:
-    │   ├─→ Send SMS via AWS SNS (hoặc Email via SES)
-    │   └─→ Create MessageRecipient record
-    ├─→ Commit to database
-    ↓
-Response (success/failed status cho từng customer)
-```
-
----
-
 ## 🔗 Truy Cập Ứng Dụng
 
 | Thành phần | URL |
@@ -321,15 +211,6 @@ Response (success/failed status cho từng customer)
 | **Frontend UI** | http://localhost:3000 |
 | **Backend API** | http://localhost:5000/api |
 | **Production API** | http://54.242.77.45:5000/api |
-
----
-
-## 📞 Liên Hệ & Hỗ Trợ
-
-Nếu gặp vấn đề, vui lòng:
-1. Kiểm tra file `.env` đã điền đầy đủ chưa
-2. Đảm bảo MySQL và AWS credentials hợp lệ
-3. Xem logs từ backend: `python run.py`
 
 ---
 
